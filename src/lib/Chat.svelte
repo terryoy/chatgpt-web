@@ -10,6 +10,7 @@
   } from "./Storage.svelte";
   import type { Request, Response, Message, Settings } from "./Types.svelte";
   import Code from "./Code.svelte";
+  import { exportAsMarkdown } from "./Export.svelte";
 
   import { afterUpdate, onMount } from "svelte";
   import SvelteMarkdown from "svelte-markdown";
@@ -337,6 +338,17 @@
           on:click|preventDefault={suggestName}
         >
           💡
+        </a>
+        <a
+          href={"#"}
+          class="greyscale ml-2 is-hidden has-text-weight-bold editbutton"
+          title="Suggest a chat name"
+          on:click|preventDefault={() => {
+            console.log("export chat id:", chat.id);
+            exportAsMarkdown(chat.id);
+          }}
+        >
+          📥
         </a>
         <a
           href={"#"}

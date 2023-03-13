@@ -22,7 +22,8 @@
                 href={"#"}
                 class:is-disabled={!apiKey}
                 class:is-active={activeChatId === chat.id}
-                on:click|preventDefault={() => (activeChatId = chat.id)}>{chat.name || `Chat ${chat.id}`}</a
+                on:click|preventDefault={() => (activeChatId = chat.id)}
+                >{chat.name || `Chat ${chat.id}`}</a
               >
             </li>
           {/each}
@@ -64,7 +65,7 @@
         }}><span class="greyscale mr-2">🗑️</span> Clear chats</a
       >
     </li>
-    {#if activeChatId}
+    <!-- {#if activeChatId}
       <li>
         <a
           href={"#"}
@@ -75,6 +76,6 @@
           }}><span class="greyscale mr-2">📥</span> Export chat</a
         >
       </li>
-    {/if}
+    {/if} -->
   </ul>
 </aside>
