@@ -23,9 +23,7 @@
 
   let input: HTMLTextAreaElement;
   let settings: HTMLDivElement;
-  let shouldShowSettings = false;
   let chatNameSettings: HTMLDivElement;
-  let shouldShowChatNameSettings = false;
   let recognition: any = null;
   let recording = false;
 
@@ -248,7 +246,6 @@
   };
 
   const showChatNameSettings = () => {
-    shouldShowChatNameSettings = true;
     chatNameSettings.classList.add("is-active");
   };
 
@@ -266,7 +263,6 @@
 
   const closeChatNameSettings = () => {
     chatNameSettings.classList.remove("is-active");
-    shouldShowChatNameSettings = false;
   };
 
   const deleteChat = () => {
@@ -279,13 +275,11 @@
   };
 
   const showSettings = () => {
-    shouldShowSettings = true;
     settings.classList.add("is-active");
   };
 
   const closeSettings = () => {
     settings.classList.remove("is-active");
-    shouldShowSettings = false;
   };
 
   const clearSettings = () => {
@@ -319,14 +313,6 @@
           title="Rename chat"
           on:click|preventDefault={() => {
             showChatNameSettings();
-            // let newChatName = prompt(
-            //   "Enter a new name for this chat",
-            //   chat.name
-            // );
-            // if (newChatName) {
-            //   chat.name = newChatName;
-            //   chatsStorage.set($chatsStorage);
-            // }
           }}
         >
           ✏️
@@ -539,7 +525,7 @@
   <div class="modal-background" on:click={closeChatNameSettings} />
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">Enter a new name this chat</p>
+      <p class="modal-card-title">Enter a new name for this chat</p>
     </header>
     <section class="modal-card-body">
       <div class="field is-horizontal">
