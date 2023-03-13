@@ -348,7 +348,7 @@
             exportAsMarkdown(chat.id);
           }}
         >
-          📥
+          📤
         </a>
         <a
           href={"#"}

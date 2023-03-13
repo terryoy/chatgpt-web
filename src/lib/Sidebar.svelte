@@ -1,11 +1,11 @@
 <script lang="ts">
   import { addChat, clearChats } from "./Storage.svelte";
-  import { exportAsMarkdown } from "./Export.svelte";
   import type { Chat } from "./Types.svelte";
 
   export let activeChatId: number;
   export let sortedChats: Chat[];
   export let apiKey: string;
+  export let view: string;
 </script>
 
 <aside class="menu">
@@ -41,6 +41,7 @@
         class:is-active={!activeChatId}
         on:click|preventDefault={() => {
           activeChatId = null;
+          view = "home";
         }}><span class="greyscale mr-2">🔑</span> API key</a
       >
     </li>
@@ -51,6 +52,7 @@
         class:is-disabled={!apiKey}
         on:click|preventDefault={() => {
           activeChatId = addChat();
+          view = "chat";
         }}><span class="greyscale mr-2">➕</span> New chat</a
       >
     </li>
@@ -62,20 +64,19 @@
         on:click|preventDefault={() => {
           clearChats();
           activeChatId = null;
+          view = "home";
         }}><span class="greyscale mr-2">🗑️</span> Clear chats</a
       >
     </li>
-    <!-- {#if activeChatId}
-      <li>
-        <a
-          href={"#"}
-          class="panel-block"
-          class:is-disabled={!apiKey}
-          on:click|preventDefault={() => {
-            exportAsMarkdown(activeChatId);
-          }}><span class="greyscale mr-2">📥</span> Export chat</a
-        >
-      </li>
-    {/if} -->
+    <li>
+      <a
+        href={"#"}
+        class="panel-block"
+        class:is-disabled={!apiKey}
+        on:click|preventDefault={() => {
+          view = "prompt";
+        }}><span class="greyscale mr-2">🤖</span> 📥 Prompts</a
+      >
+    </li>
   </ul>
 </aside>

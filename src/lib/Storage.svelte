@@ -1,12 +1,14 @@
 <script context="module" lang="ts">
   import { persisted } from "svelte-local-storage-store";
   import { get } from "svelte/store";
-  import type { Chat, Message } from "./Types.svelte";
+  import type { Chat, Message, Prompt } from "./Types.svelte";
 
   export const chatsStorage = persisted("chats", [] as Chat[]);
   export const apiKeyStorage = persisted("apiKey", null as string);
   export const apiHostStorage = persisted("apiHost", null as string);
+  export const promptStorage = persisted("prompts", [] as Prompt[]);
 
+  /* Storage::Chats */
   export const addChat = (): number => {
     const chats = get(chatsStorage);
 
@@ -28,6 +30,7 @@
     chatsStorage.set([]);
   };
 
+  /* Storage::Chats::Messages */
   export const addMessage = (chatId: number, message: Message) => {
     const chats = get(chatsStorage);
     const chat = chats.find((chat) => chat.id === chatId);

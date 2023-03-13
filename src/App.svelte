@@ -4,6 +4,7 @@
   import Home from "./lib/Home.svelte";
   import Chat from "./lib/Chat.svelte";
   import Footer from "./lib/Footer.svelte";
+  import Prompt from "./lib/Prompt.svelte";
 
   import {
     apiKeyStorage,
@@ -24,6 +25,7 @@
   }
 
   let activeChatId: number;
+  let view: string;
 </script>
 
 <Navbar />
@@ -32,10 +34,12 @@
   <div class="container is-fullhd">
     <div class="columns">
       <div class="column is-one-fifth">
-        <Sidebar bind:apiKey bind:sortedChats bind:activeChatId />
+        <Sidebar bind:apiKey bind:sortedChats bind:activeChatId bind:view />
       </div>
       <div class="column is-four-fifths">
-        {#if activeChatId}
+        {#if view === "prompt"}
+          <Prompt />
+        {:else if activeChatId}
           <Chat bind:chatId={activeChatId} />
         {:else}
           <Home bind:activeChatId />

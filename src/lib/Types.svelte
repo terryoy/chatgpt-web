@@ -17,6 +17,13 @@
     total_tokens: number;
   };
 
+  export type Prompt = {
+    cmd: string; // id
+    act: string;
+    prompt: string;
+    enabled: boolean;
+  };
+
   export type Request = {
     model: "gpt-3.5-turbo" | "gpt-3.5-turbo-0301";
     messages: Message[];
