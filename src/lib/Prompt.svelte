@@ -17,3 +17,17 @@
     promptStorage.set(prompts);
   };
 </script>
+
+<article class="message">
+  <div class="message-body">
+    <p>Explain Prompts</p>
+    <ul class="menu-list">
+      <li>
+        <a href={"#"} on:click|preventDefault={() => {}}>📥 Import Prompts</a>
+      </li>
+    </ul>
+  </div>
+</article>
+<article class="message">
+  <div class="message-body">Prompt List</div>
+</article>

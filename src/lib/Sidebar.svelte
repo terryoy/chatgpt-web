@@ -75,7 +75,7 @@
         class:is-disabled={!apiKey}
         on:click|preventDefault={() => {
           view = "prompt";
-        }}><span class="greyscale mr-2">🤖</span> 📥 Prompts</a
+        }}><span class="greyscale mr-2">🤖</span> Prompts</a
       >
     </li>
   </ul>
