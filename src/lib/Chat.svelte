@@ -26,6 +26,8 @@
   let chatNameSettings: HTMLDivElement;
   let recognition: any = null;
   let recording = false;
+  let showPromptList = false;
+  let promptList = true;
 
   const settingsMap: Settings[] = [
     {
@@ -184,10 +186,15 @@
     return response;
   };
 
-  const submitForm = async (recorded: boolean = false): Promise<void> => {
+  const submitForm = async (
+    recorded: boolean = false,
+    retry: boolean = false
+  ): Promise<void> => {
     // Compose the input message
-    const inputMessage: Message = { role: "user", content: input.value };
-    addMessage(chatId, inputMessage);
+    if (!retry) {
+      const inputMessage: Message = { role: "user", content: input.value };
+      addMessage(chatId, inputMessage);
+    }
 
     // Clear the input value
     input.value = "";
@@ -199,6 +206,7 @@
     const response = await sendRequest(chat.messages);
 
     if (response.error) {
+      // TODO: Add request retry logic
       addMessage(chatId, {
         role: "error",
         content: `Error: ${response.error.message}`,
@@ -300,6 +308,47 @@
       recognition?.start();
     }
   };
+
+  // -- Function block: Insert Prompt
+  const testPromptSearch = () => {
+    const searchKey = input.value;
+    console.log("prompt search:", searchKey);
+    if (/\/[0-9a-zA-Z\-]*$/.test(searchKey)) {
+      console.log("prompt list activate");
+      showPromptList = true;
+    } else {
+      console.log("prompt list deactivate");
+      showPromptList = false;
+    }
+  };
+
+  const navigatePromptSearch = (e) => {
+    if (!showPromptList) {
+      return;
+    }
+
+    switch (e.key) {
+      case "Up": {
+        console.log("up");
+        break;
+      }
+      case "Down": {
+        console.log("down");
+        break;
+      }
+    }
+  };
+
+  const setPrompt = (e) => {
+    const prompt = e.target.innerText;
+    console.log("prompt click:", e, prompt);
+    if (prompt) {
+      // Set the prompt
+      input.value = prompt;
+      // Submit the form
+      // submitForm();
+    }
+  };
 </script>
 
 <nav class="level chat-header">
@@ -398,6 +447,9 @@
             code: Code,
           }}
         />
+        {#if message.role === "error"}
+          <button on:click={() => submitForm(false, true)}>🔄</button>
+        {/if}
       </div>
     </article>
   {:else}
@@ -451,9 +503,18 @@
         // Resize the textarea to fit the content - auto is important to reset the height after deleting content
         input.style.height = "auto";
         input.style.height = input.scrollHeight + "px";
+
+        testPromptSearch();
       }}
       bind:this={input}
     />
+    {#if showPromptList}
+      <div class="code-hints notification">
+        <div class="hint-item" on:click={setPrompt}>Code Guru</div>
+        <div class="hint-item" on:click={setPrompt}>Architect</div>
+        <div class="hint-item" on:click={setPrompt}>Writer</div>
+      </div>
+    {/if}
   </p>
   <p class="control" class:is-hidden={!recognition}>
     <button

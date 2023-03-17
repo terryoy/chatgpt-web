@@ -55,6 +55,24 @@ a.is-disabled {
   overflow-y:hidden;
 }
 
+.code-hints {
+  position: absolute;
+  width: 300px;
+  background-color: white;
+  border: 1px solid gray;
+  z-index: 10;
+}
+
+.hint-item {
+  padding: 5px;
+  cursor: pointer;
+}
+
+.hint-item:hover {
+  background-color: #f5f5f5;
+}
+
+
 $footer-padding: 3rem 1.5rem;
 $fullhd: 2000px;
 $modal-content-width: 1000px;

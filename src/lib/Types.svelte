@@ -21,7 +21,7 @@
     cmd: string; // id
     act: string;
     prompt: string;
-    enabled: boolean;
+    enabled?: boolean;
   };
 
   export type Request = {
