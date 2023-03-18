@@ -51,6 +51,25 @@ npm run dev # or: npm run build
 
 - CSS framework: [Bulma CSS](https://bulma.io/documentation/)
 - Added [Tauri](https://tauri.app/) for Desktop App support?
+  - To install tauri dependencies, you also need to instsall Rust, Tauri-cli(Reference: [stackoverflow](https://stackoverflow.com/questions/75013520/when-i-install-and-run-tauri-on-mac-os-monterey-i-get-immediate-error/75580172#75580172)):
+
+```shell
+# install rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# install tauri-cli
+cargo install tauri-cli
+```
+  - To run
+
+```shell
+# start dev app
+npm run tauri dev
+
+# build
+npm run tauri build
+```
+
 - Branches:
   - main, my main branch
   - upstream/stage, keep up with upstream's main
