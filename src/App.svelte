@@ -1,8 +1,9 @@
 <script lang="ts">
+  import Router, { location } from "svelte-spa-router";
+  import routes from "./routes";
+
   import Navbar from "./lib/Navbar.svelte";
   import Sidebar from "./lib/Sidebar.svelte";
-  import Home from "./lib/Home.svelte";
-  import Chat from "./lib/Chat.svelte";
   import Footer from "./lib/Footer.svelte";
 
   import {
@@ -22,8 +23,6 @@
   if (urlParams.has("host")) {
     apiHostStorage.set(urlParams.get("host")!);
   }
-
-  let activeChatId: number;
 </script>
 
 <Navbar />
@@ -32,14 +31,12 @@
   <div class="container is-fullhd">
     <div class="columns">
       <div class="column is-one-fifth">
-        <Sidebar bind:apiKey bind:sortedChats bind:activeChatId />
+        <Sidebar bind:apiKey bind:sortedChats />
       </div>
       <div class="column is-four-fifths">
-        {#if activeChatId}
-          <Chat bind:chatId={activeChatId} />
-        {:else}
-          <Home bind:activeChatId />
-        {/if}
+        {#key $location}
+          <Router {routes} />
+        {/key}
       </div>
     </div>
   </div>
