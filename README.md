@@ -31,7 +31,7 @@ npm run dev # or: npm run build
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Michael-Tanzer"><img src="https://avatars.githubusercontent.com/u/23483071?v=4?s=100" width="100px;" alt="Michael Tanzer"/><br /><sub><b>Michael Tanzer</b></sub></a><br /><a href="#ideas-Michael-Tanzer" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/Niek/chatgpt-web/commits?author=Michael-Tanzer" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/petergeneric"><img src="https://avatars.githubusercontent.com/u/870655?v=4?s=100" width="100px;" alt="Peter"/><br /><sub><b>Peter</b></sub></a><br /><a href="#ideas-petergeneric" title="Ideas, Planning, & Feedback">🤔</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://danb.me"><img src="https://avatars.githubusercontent.com/u/8343178?v=4?s=100" width="100px;" alt="Dan Brown"/><br /><sub><b>Dan Brown</b></sub></a><br /><a href="#ideas-ssddanbrown" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://danb.me"><img src="https://avatars.githubusercontent.com/u/8343178?v=4?s=100" width="100px;" alt="Dan Brown"/><br /><sub><b>Dan Brown</b></sub></a><br /><a href="#ideas-ssddanbrown" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/Niek/chatgpt-web/commits?author=ssddanbrown" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/littlemoonstones"><img src="https://avatars.githubusercontent.com/u/32943414?v=4?s=100" width="100px;" alt="littlemoonstones"/><br /><sub><b>littlemoonstones</b></sub></a><br /><a href="https://github.com/Niek/chatgpt-web/commits?author=littlemoonstones" title="Code">💻</a> <a href="#ideas-littlemoonstones" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/maxrye1996"><img src="https://avatars.githubusercontent.com/u/28844671?v=4?s=100" width="100px;" alt="maxrye1996"/><br /><sub><b>maxrye1996</b></sub></a><br /><a href="https://github.com/Niek/chatgpt-web/issues?q=author%3Amaxrye1996" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Mikemansour"><img src="https://avatars.githubusercontent.com/u/50986937?v=4?s=100" width="100px;" alt="Mikemansour"/><br /><sub><b>Mikemansour</b></sub></a><br /><a href="#ideas-Mikemansour" title="Ideas, Planning, & Feedback">🤔</a></td>
@@ -50,7 +50,26 @@ npm run dev # or: npm run build
 ---
 
 - CSS framework: [Bulma CSS](https://bulma.io/documentation/)
-- Added electron framework(Maybe switch to [Tauri](https://tauri.app/))?
+- Added [Tauri](https://tauri.app/) for Desktop App support?
+  - To install tauri dependencies, you also need to instsall Rust, Tauri-cli(Reference: [stackoverflow](https://stackoverflow.com/questions/75013520/when-i-install-and-run-tauri-on-mac-os-monterey-i-get-immediate-error/75580172#75580172)):
+
+```shell
+# install rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# install tauri-cli
+cargo install tauri-cli
+```
+  - To run
+
+```shell
+# start dev app
+npm run tauri dev
+
+# build
+npm run tauri build
+```
+
 - Branches:
   - main, my main branch
   - upstream/stage, keep up with upstream's main
