@@ -54,10 +54,10 @@
         }}><span class="greyscale mr-2">🗑️</span> Clear chats</a
       >
     </li>
-    {#if activeChatId}
+    <!-- {#if activeChatId}
       <li>
         <a
-          href={"#/"}
+          href={"#"}
           class="panel-block"
           class:is-disabled={!apiKey}
           on:click|preventDefault={() => {
@@ -65,6 +65,6 @@
           }}><span class="greyscale mr-2">📥</span> Export chat</a
         >
       </li>
-    {/if}
+    {/if} -->
   </ul>
 </aside>

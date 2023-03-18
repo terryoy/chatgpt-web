@@ -51,3 +51,7 @@ npm run dev # or: npm run build
 
 - CSS framework: [Bulma CSS](https://bulma.io/documentation/)
 - Added electron framework(Maybe switch to [Tauri](https://tauri.app/))?
+- Branches:
+  - main, my main branch
+  - upstream/stage, keep up with upstream's main
+  - merge/stream, do the merging job with my main and upstream's main

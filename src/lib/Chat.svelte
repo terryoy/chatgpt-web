@@ -17,6 +17,7 @@
     type SettingsSelect,
   } from "./Types.svelte";
   import Code from "./Code.svelte";
+  import { exportAsMarkdown } from "./Export.svelte";
 
   import { afterUpdate, onMount } from "svelte";
   import { replace } from "svelte-spa-router";
@@ -385,6 +386,17 @@
           on:click|preventDefault={suggestName}
         >
           💡
+        </a>
+        <a
+          href={"#"}
+          class="greyscale ml-2 is-hidden has-text-weight-bold editbutton"
+          title="Suggest a chat name"
+          on:click|preventDefault={() => {
+            console.log("export chat id:", chat.id);
+            exportAsMarkdown(chat.id);
+          }}
+        >
+          📥
         </a>
         <a
           href={"#"}
