@@ -50,7 +50,7 @@ npm run dev # or: npm run build
 ---
 
 - CSS framework: [Bulma CSS](https://bulma.io/documentation/)
-- Added electron framework(Maybe switch to [Tauri](https://tauri.app/))?
+- Added [Tauri](https://tauri.app/) for Desktop App support?
 - Branches:
   - main, my main branch
   - upstream/stage, keep up with upstream's main
