@@ -19,6 +19,25 @@
     promptStorage.set(prompts);
   };
 
+  // Function: Import Prompts
+  let fileInput: HTMLInputElement;
+  const handleFileSelected = (e) => {
+    const fileList = e.target.files;
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+      const jsonData = JSON.parse(event.target.result.toString());
+      console.log("result:", event.target.result);
+      console.log("jsonData:", jsonData);
+    };
+
+    reader.readAsText(fileList[0]);
+  };
+  const importPromptFromJson = () => {
+    console.log(fileInput);
+    fileInput.click();
+  };
+
   // Function: Table Pagination
 
   // 首先定义需要渲染的数据
@@ -82,10 +101,11 @@
     <div class="column is-half">
       <div class="field is-horizontal">
         <div class="field-label is-normal">
-          <label class="label"> Search: </label>
+          <label class="label" for="input-prompt-search"> Search: </label>
         </div>
         <div class="field-body control">
           <input
+            id="input-prompt-search"
             type="text"
             on:keyup={handleSearch}
             class="input"
@@ -96,8 +116,16 @@
     </div>
     <div class="column is-half">
       <div class="buttons">
-        <button class="button is-text" on:click|preventDefault={() => {}}
-          >📥 Import</button
+        <input
+          type="file"
+          style="display:none"
+          id="file-input"
+          bind:this={fileInput}
+          on:change={handleFileSelected}
+        />
+        <button
+          class="button is-text"
+          on:click|preventDefault={importPromptFromJson}>📥 Import</button
         >
       </div>
     </div>
