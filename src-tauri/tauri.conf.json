@@ -56,10 +56,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
+        "height": 768,
         "resizable": true,
-        "title": "ChatGPT Web Desktop",
-        "width": 800
+        "title": "ChatGPT-web Desktop app",
+        "width": 1024
       }
     ]
   }

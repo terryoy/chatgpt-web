@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { addChat, apiHostStorage, apiKeyStorage } from "./Storage.svelte";
+  import { apiHostStorage, apiKeyStorage } from "./Storage.svelte";
 
   $: apiKey = $apiKeyStorage;
   $: apiHost = $apiHostStorage;
-
 </script>
 
 <article class="message">
@@ -23,8 +22,10 @@
     <form
       class="field has-addons has-addons-right"
       on:submit|preventDefault={(event) => {
-        apiHostStorage.set(event.target[0].value);
-        apiKeyStorage.set(event.target[1].value);
+          if (event.target) {
+            apiHostStorage.set(event.target[0].value);
+            event.target[1].value && apiKeyStorage.set(event.target[1].value);
+          }
       }}
     >
       <p class="control is-expanded">
@@ -66,7 +67,7 @@
   <article class="message is-info">
     <div class="message-body">
       Select an existing chat on the sidebar, or
-      <a href={"#/chat/new"}>create a new chat</a>
+      <a href={'#/chat/new'}>create a new chat</a>
     </div>
   </article>
 {/if}
