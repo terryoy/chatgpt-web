@@ -426,9 +426,8 @@
         <a
           href={"#"}
           class="greyscale ml-2 is-hidden has-text-weight-bold editbutton"
-          title="Suggest a chat name"
+          title="Export this chat"
           on:click|preventDefault={() => {
-            console.log("export chat id:", chat.id);
             exportAsMarkdown(chat.id);
           }}
         >
