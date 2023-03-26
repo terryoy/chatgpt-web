@@ -63,4 +63,36 @@
     chats.splice(chatIndex, 1);
     chatsStorage.set(chats);
   };
+
+
+  /* Storage::Prompts */
+  export const addNewPrompts = (newPrompts: Prompt[]) => {
+    const prompts = get(promptStorage);
+    const appendPrompts = newPrompts
+      .filter((newPrompt) => {
+        const prompt = prompts.find((prompt) => prompt.cmd === newPrompt.cmd);
+        return prompt === undefined;
+      })
+      .forEach((newPrompt) => {
+        prompts.push(newPrompt);
+      });
+    
+
+    promptStorage.set(prompts);
+  };
+
+  export const updatePrompt = (newPrompt: Prompt) => {
+    promptStorage.update(prompts => prompts.map((prompt) => {
+      if (prompt.cmd === newPrompt.cmd) {
+        return newPrompt
+      }
+      return prompt
+    }))
+  }
+
+  export const deletePrompt = (promptKey:string) => {
+    promptStorage.update(prompts => prompts.filter(prompt => prompt.cmd === promptKey))
+  }
+ 
+
 </script>

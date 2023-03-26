@@ -361,7 +361,6 @@
   // -- Function block: Insert Prompt
   const testPromptSearch = () => {
     const searchKey = input.value;
-    console.log("prompt search:", searchKey);
     if (/\/[0-9a-zA-Z\-]*$/.test(searchKey)) {
       console.log("prompt list activate");
       showPromptList = true;
@@ -558,9 +557,9 @@
     />
     {#if showPromptList}
       <div class="code-hints notification">
-        <div class="hint-item" on:click={setPrompt}>Code Guru</div>
-        <div class="hint-item" on:click={setPrompt}>Architect</div>
-        <div class="hint-item" on:click={setPrompt}>Writer</div>
+        <div class="hint-item" on:click={setPrompt} on:keydown={(e) => e.key == 'Enter' && setPrompt(e)}>Code Guru</div>
+        <div class="hint-item" on:click={setPrompt} on:keydown={(e) => e.key == 'Enter' && setPrompt(e)}>Architect</div>
+        <div class="hint-item" on:click={setPrompt} on:keydown={(e) => e.key == 'Enter' && setPrompt(e)}>Writer</div>
       </div>
     {/if}
   </p>

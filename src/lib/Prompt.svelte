@@ -1,58 +1,13 @@
 <script context="module" lang="ts">
   import { get } from "svelte/store";
-  import { onMount } from "svelte";
-  import { promptStorage } from "./Storage.svelte";
+  import { addNewPrompts, deletePrompt, promptStorage, updatePrompt } from "./Storage.svelte";
   import type { Prompt } from "./Types.svelte";
 
-  // Function: Data operation
-  const savePrompts = (newPrompts: Prompt[]) => {
-    const prompts = get(promptStorage);
-    const appendPrompts = newPrompts
-      .filter((newPrompt) => {
-        const prompt = prompts.find((prompt) => prompt.cmd === newPrompt.cmd);
-        return prompt === undefined;
-      })
-      .forEach((newPrompt) => {
-        prompts.push(newPrompt);
-      });
-
-    promptStorage.set(prompts);
-  };
-
-  // Function: Import Prompts
-  let fileInput: HTMLInputElement;
-  const handleFileSelected = (e) => {
-    const fileList = e.target.files;
-    const reader = new FileReader();
-
-    reader.onload = function (event) {
-      const jsonData = JSON.parse(event.target.result.toString());
-      console.log("result:", event.target.result);
-      console.log("jsonData:", jsonData);
-    };
-
-    reader.readAsText(fileList[0]);
-  };
-  const importPromptFromJson = () => {
-    console.log(fileInput);
-    fileInput.click();
-  };
-
   // Function: Table Pagination
-
   // 首先定义需要渲染的数据
-  let tableData: Prompt[] = [
-    { cmd: "1", act: "Tom", prompt: "22" },
-    { cmd: "2", act: "Jerry", prompt: "24" },
-    { cmd: "3", act: "Tony", prompt: "28" },
-    { cmd: "4", act: "Mike", prompt: "26" },
-    { cmd: "5", act: "John", prompt: "30" },
-    { cmd: "6", act: "Lily", prompt: "22" },
-    { cmd: "7", act: "Amy", prompt: "25" },
-    { cmd: "8", act: "Bob", prompt: "23" },
-    { cmd: "9", act: "Alice", prompt: "27" },
-    { cmd: "10", act: "Jack", prompt: "29" },
-  ];
+  let searchText = ''
+  let prompts = get(promptStorage)
+  let tableData: Prompt[] = handleFilterAndPagination(prompts);
 
   const PAGE_SIZE = 10;
   let currentPage = 1;
@@ -69,6 +24,9 @@
   // 搜索过滤表格数据
   function handleSearch(event) {
     const searchText = event.target.value.toLowerCase();
+  }
+
+  function handleFilterAndPagination(originPrompts: Prompt[]) {
     tableData = tableData.filter((item) => {
       const name = item.act.toLowerCase();
       return name.includes(searchText);
@@ -85,10 +43,89 @@
     tableData[index][column] = value;
   }
 
-  // 初始化页面的逻辑
-  // onMount(() => {
-  //   handlePageChange(1);
-  // });
+  
+  // Function: Prompt Edit
+
+  let promptEditModal: HTMLElement;
+  let editForm = {
+    isNew: true,
+    prompt: null,
+  };
+
+  const showPromptEditModal = () => {
+    promptEditModal.classList.add("is-active")
+  }
+
+  const closePromptEditModal = () => {
+    promptEditModal.classList.remove('is-active')
+  }
+
+  // new single prompt
+  const addPromptClick = () => {
+    editForm = {
+      isNew: true,
+      prompt: {
+        cmd: '',
+        act: '',
+        prompt: '',
+        enabled: true
+      }
+    }
+    showPromptEditModal()
+  }
+
+  const editPromptClick = (prompt) => {
+    editForm = {
+      isNew: false,
+      prompt
+    }
+    showPromptEditModal()
+  }
+
+  const deletePromptClick = (prompt) => {
+    deletePrompt(prompt)
+  }
+
+  const _validatePromptForm = () => {
+    return true
+  }
+
+  const savePromptEditModal = (e) => {
+    if (!_validatePromptForm()) {
+      // show validation error
+      return;
+    }
+
+    if (editForm.isNew) {
+      addNewPrompts([editForm.prompt])
+    } else {
+      updatePrompt(editForm.prompt)
+    }
+
+    console.log('save successfully')
+  }
+
+  // import prompts from a file
+  let fileInput: HTMLInputElement;
+  const handleFileSelected = (e) => {
+    const fileList = e.target.files;
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+      const jsonData = JSON.parse(event.target.result.toString());
+      console.log("result:", event.target.result);
+      console.log("jsonData:", jsonData);
+    };
+
+    reader.readAsText(fileList[0]);
+  };
+  const importPromptFromJson = () => {
+    fileInput.click();
+  };
+
+
+
+
 </script>
 
 <article class="message">
@@ -124,8 +161,12 @@
           on:change={handleFileSelected}
         />
         <button
-          class="button is-text"
-          on:click|preventDefault={importPromptFromJson}>📥 Import</button
+          class="button"
+          on:click|preventDefault={addPromptClick}>Add</button
+        >
+        <button
+          class="button is-primary"
+          on:click|preventDefault={importPromptFromJson}>Import from JSON</button
         >
       </div>
     </div>
@@ -135,7 +176,7 @@
   <div class="table-container">
     <table class="table is-fullwidth">
       <thead>
-        <tr class="table-header">
+        <tr class="table-header">          
           <th>Cmd</th>
           <th>Status</th>
           <th>Act</th>
@@ -143,27 +184,24 @@
         </tr>
       </thead>
       <tbody>
-        {#each tableData.slice(startIndex, endIndex + 1) as item}
-          <tr class="table-row">
-            <td class="table-cell">{item.cmd}</td>
-            <td class="table-cell">{item.enabled ? true : false} </td>
-            <td class="table-cell">
-              <input
-                type="text"
-                value={item.act}
-                on:keyup={(e) => handleCellEdit(e, item.cmd, "act")}
-                class="input"
-              />
-            </td>
-            <td class="table-cell">
-              <textarea
-                value={item.prompt}
-                on:keyup={(e) => handleCellEdit(e, item.cmd, "prompt")}
-                class="input"
-              />
-            </td>
+        {#if tableData.length > 0 }
+          {#each tableData.slice(startIndex, endIndex + 1) as item}
+            <tr class="table-row">
+              <td class="table-cell">{item.cmd}</td>
+              <td class="table-cell">{item.enabled ? true : false} </td>
+              <td class="table-cell">{item.act}</td>
+              <td class="table-cell">{item.prompt}</td>
+              <td class="table-cell">
+                <button on:click={() => editPromptClick(item)}>📝</button>
+                <button on:click={() => deletePromptClick(item)}>⛔</button>
+              </td>
+            </tr>
+          {/each}
+        {:else}
+          <tr>
+            <td colspan=4>No prompt entries.</td>
           </tr>
-        {/each}
+        {/if}
       </tbody>
     </table>
   </div>
@@ -197,3 +235,20 @@
     {/if}
   </nav>
 </section>
+
+
+<!-- add or edit dialog -->
+<div class="modal" bind:this={promptEditModal}>
+  <div class="modal-background" on:click={closePromptEditModal} />
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Prompt</p>
+    </header>
+    <section class="modal-card-body">
+    </section>
+  </div>
+  <footer class="modal-card-foot">
+    <button class="button is-sucess" aria-label="save" on:click={savePromptEditModal}>Save</button>
+    <button class="button" aria-label="cancel" on:click={closePromptEditModal}>Cancel</button>
+  </footer>
+</div>
