@@ -1,13 +1,19 @@
 <script context="module" lang="ts">
   import { get } from "svelte/store";
-  import { addNewPrompts, deletePrompt, promptStorage, updatePrompt } from "./Storage.svelte";
+  import {
+    addNewPrompts,
+    deletePrompt,
+    promptStorage,
+    updatePrompt,
+  } from "./Storage.svelte";
   import type { Prompt } from "./Types.svelte";
 
   // Function: Table Pagination
   // 首先定义需要渲染的数据
-  let searchText = ''
-  let prompts = get(promptStorage)
-  let tableData: Prompt[] = handleFilterAndPagination(prompts);
+  let searchText = "";
+  let prompts = get(promptStorage);
+  let tableData: Prompt[] = prompts;
+  updateFilterAndPagination();
 
   const PAGE_SIZE = 10;
   let currentPage = 1;
@@ -26,14 +32,11 @@
     const searchText = event.target.value.toLowerCase();
   }
 
-  function handleFilterAndPagination(originPrompts: Prompt[]) {
-    tableData = tableData.filter((item) => {
+  function updateFilterAndPagination() {
+    tableData = prompts.filter((item) => {
       const name = item.act.toLowerCase();
       return name.includes(searchText);
     });
-    currentPage = 1;
-    startIndex = 0;
-    endIndex = PAGE_SIZE - 1;
   }
 
   // 处理单元格编辑
@@ -43,7 +46,6 @@
     tableData[index][column] = value;
   }
 
-  
   // Function: Prompt Edit
 
   let promptEditModal: HTMLElement;
@@ -53,42 +55,42 @@
   };
 
   const showPromptEditModal = () => {
-    promptEditModal.classList.add("is-active")
-  }
+    promptEditModal.classList.add("is-active");
+  };
 
   const closePromptEditModal = () => {
-    promptEditModal.classList.remove('is-active')
-  }
+    promptEditModal.classList.remove("is-active");
+  };
 
   // new single prompt
   const addPromptClick = () => {
     editForm = {
       isNew: true,
       prompt: {
-        cmd: '',
-        act: '',
-        prompt: '',
-        enabled: true
-      }
-    }
-    showPromptEditModal()
-  }
+        cmd: "",
+        act: "",
+        prompt: "",
+        enabled: true,
+      },
+    };
+    showPromptEditModal();
+  };
 
   const editPromptClick = (prompt) => {
     editForm = {
       isNew: false,
-      prompt
-    }
-    showPromptEditModal()
-  }
+      prompt,
+    };
+    showPromptEditModal();
+  };
 
   const deletePromptClick = (prompt) => {
-    deletePrompt(prompt)
-  }
+    deletePrompt(prompt);
+  };
 
   const _validatePromptForm = () => {
-    return true
-  }
+    return true;
+  };
 
   const savePromptEditModal = (e) => {
     if (!_validatePromptForm()) {
@@ -97,13 +99,13 @@
     }
 
     if (editForm.isNew) {
-      addNewPrompts([editForm.prompt])
+      addNewPrompts([editForm.prompt]);
     } else {
-      updatePrompt(editForm.prompt)
+      updatePrompt(editForm.prompt);
     }
 
-    console.log('save successfully')
-  }
+    console.log("save successfully");
+  };
 
   // import prompts from a file
   let fileInput: HTMLInputElement;
@@ -122,10 +124,6 @@
   const importPromptFromJson = () => {
     fileInput.click();
   };
-
-
-
-
 </script>
 
 <article class="message">
@@ -152,7 +150,7 @@
       </div>
     </div>
     <div class="column is-half">
-      <div class="buttons">
+      <div class="buttons is-right">
         <input
           type="file"
           style="display:none"
@@ -160,13 +158,13 @@
           bind:this={fileInput}
           on:change={handleFileSelected}
         />
-        <button
-          class="button"
-          on:click|preventDefault={addPromptClick}>Add</button
+        <button class="button" on:click|preventDefault={addPromptClick}
+          >Add</button
         >
         <button
           class="button is-primary"
-          on:click|preventDefault={importPromptFromJson}>Import from JSON</button
+          on:click|preventDefault={importPromptFromJson}
+          >Import from JSON</button
         >
       </div>
     </div>
@@ -176,7 +174,7 @@
   <div class="table-container">
     <table class="table is-fullwidth">
       <thead>
-        <tr class="table-header">          
+        <tr class="table-header">
           <th>Cmd</th>
           <th>Status</th>
           <th>Act</th>
@@ -184,7 +182,7 @@
         </tr>
       </thead>
       <tbody>
-        {#if tableData.length > 0 }
+        {#if tableData.length > 0}
           {#each tableData.slice(startIndex, endIndex + 1) as item}
             <tr class="table-row">
               <td class="table-cell">{item.cmd}</td>
@@ -199,7 +197,7 @@
           {/each}
         {:else}
           <tr>
-            <td colspan=4>No prompt entries.</td>
+            <td colspan="4">No prompt entries.</td>
           </tr>
         {/if}
       </tbody>
@@ -208,34 +206,36 @@
 
   <!-- 分页 -->
   <nav class="pagination">
-    {#if currentPage > 1}
-      <button
-        on:click={() => handlePageChange(currentPage - 1)}
-        class="pagination-prev-next"
-      >
-        Prev
-      </button>
-    {/if}
-    {#each Array.from({ length: Math.ceil(tableData.length / PAGE_SIZE) }, (_, i) => i + 1) as page}
-      {#if page === currentPage}
-        <button class="pagination-current">{page}</button>
-      {:else if page >= currentPage - 3 && page <= currentPage + 3}
-        <button on:click={() => handlePageChange(page)} class="pagination-other"
-          >{page}</button
+    {#if tableData.length > PAGE_SIZE}
+      {#if currentPage > 1}
+        <button
+          on:click={() => handlePageChange(currentPage - 1)}
+          class="pagination-prev-next"
         >
+          Prev
+        </button>
       {/if}
-    {/each}
-    {#if currentPage < Math.ceil(tableData.length / PAGE_SIZE)}
-      <button
-        on:click={() => handlePageChange(currentPage + 1)}
-        class="pagination-prev-next"
-      >
-        Next
-      </button>
+      {#each Array.from({ length: Math.ceil(tableData.length / PAGE_SIZE) }, (_, i) => i + 1) as page}
+        {#if page === currentPage}
+          <button class="pagination-current">{page}</button>
+        {:else if page >= currentPage - 3 && page <= currentPage + 3}
+          <button
+            on:click={() => handlePageChange(page)}
+            class="pagination-other">{page}</button
+          >
+        {/if}
+      {/each}
+      {#if currentPage < Math.ceil(tableData.length / PAGE_SIZE)}
+        <button
+          on:click={() => handlePageChange(currentPage + 1)}
+          class="pagination-prev-next"
+        >
+          Next
+        </button>
+      {/if}
     {/if}
   </nav>
 </section>
-
 
 <!-- add or edit dialog -->
 <div class="modal" bind:this={promptEditModal}>
@@ -244,11 +244,16 @@
     <header class="modal-card-head">
       <p class="modal-card-title">Prompt</p>
     </header>
-    <section class="modal-card-body">
-    </section>
+    <section class="modal-card-body" />
   </div>
   <footer class="modal-card-foot">
-    <button class="button is-sucess" aria-label="save" on:click={savePromptEditModal}>Save</button>
-    <button class="button" aria-label="cancel" on:click={closePromptEditModal}>Cancel</button>
+    <button
+      class="button is-sucess"
+      aria-label="save"
+      on:click={savePromptEditModal}>Save</button
+    >
+    <button class="button" aria-label="cancel" on:click={closePromptEditModal}
+      >Cancel</button
+    >
   </footer>
 </div>
