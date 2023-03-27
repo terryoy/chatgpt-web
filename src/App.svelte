@@ -1,11 +1,14 @@
 <script lang="ts">
-  import Router, { location } from "svelte-spa-router";
-  import routes from "./routes";
+  import Router, { location, querystring, replace } from 'svelte-spa-router'
+  import { wrap } from 'svelte-spa-router/wrap'
 
   import Navbar from "./lib/Navbar.svelte";
   import Sidebar from "./lib/Sidebar.svelte";
   import Footer from "./lib/Footer.svelte";
   import Prompt from "./lib/Prompt.svelte";
+  import Home from './lib/Home.svelte'
+  import Chat from './lib/Chat.svelte'
+  import NewChat from './lib/NewChat.svelte'
 
   import {
     apiKeyStorage,
@@ -13,13 +16,36 @@
     chatsStorage,
   } from "./lib/Storage.svelte";
 
-  $: sortedChats = $chatsStorage.sort((a, b) => b.id - a.id);
-  $: apiKey = $apiKeyStorage;
-
   // Check if the API key is passed in as a "key" query parameter - if so, save it
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has("key")) {
-    apiKeyStorage.set(urlParams.get("key")!);
+  // Example: https://niek.github.io/chatgpt-web/#/?key=sk-...
+  const urlParams: URLSearchParams = new URLSearchParams($querystring)
+  if (urlParams.has('key')) {
+    apiKeyStorage.set(urlParams.get('key') as string)
+  }
+
+  // The definition of the routes with some conditions
+  const routes = {
+    '/': Home,
+
+    '/chat/new': wrap({
+      component: NewChat,
+      conditions: () => {
+        return !!$apiKeyStorage
+      }
+    }),
+
+    '/chat/:chatId': wrap({
+      component: Chat,
+      conditions: (detail) => {
+        return $chatsStorage.find((chat) => chat.id === parseInt(detail?.params?.chatId as string)) !== undefined
+      }
+    }),
+
+    "/prompt": wrap({
+      component: Prompt,
+    }),
+
+    '*': Home
   }
   if (urlParams.has("host")) {
     apiHostStorage.set(urlParams.get("host")!);
@@ -33,11 +59,11 @@
   <div class="container is-fullhd">
     <div class="columns">
       <div class="column is-one-fifth">
-        <Sidebar bind:apiKey bind:sortedChats />
+        <Sidebar />
       </div>
-      <div class="column is-four-fifths">
+      <div class="column is-four-fifths" id="content">
         {#key $location}
-          <Router {routes} />
+          <Router {routes} on:conditionsFailed={() => replace('/')}/>
         {/key}
       </div>
     </div>
