@@ -1,5 +1,6 @@
 <script context="module" lang="ts">
   import { get } from "svelte/store";
+  import awesomePrompts from '../awesome-chatgpt-prompts/prompts.csv'
   import {
     addNewPrompts,
     deletePrompt,
@@ -107,6 +108,20 @@
     console.log("save successfully");
   };
 
+  // import base prompts 
+  const loadBasePrompts = () => {
+    const basePrompts:Prompt[] = awesomePrompts.map((p) => {
+      return {
+        cmd: p.act,
+        act: p.act,
+        prompt: p.prompt,
+        enabled: true
+      }
+    })
+    addNewPrompts(basePrompts)
+    updateFilterAndPagination()
+  }
+
   // import prompts from a file
   let fileInput: HTMLInputElement;
   const handleFileSelected = (e) => {
@@ -161,11 +176,14 @@
         <button class="button" on:click|preventDefault={addPromptClick}
           >Add</button
         >
-        <button
+        <button class="button" on:click|preventDefault={loadBasePrompts}
+          >Load</button
+        >
+        <!-- <button
           class="button is-primary"
           on:click|preventDefault={importPromptFromJson}
           >Import from JSON</button
-        >
+        > -->
       </div>
     </div>
   </div>
@@ -179,6 +197,7 @@
           <th>Status</th>
           <th>Act</th>
           <th>Prompt</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -186,12 +205,14 @@
           {#each tableData.slice(startIndex, endIndex + 1) as item}
             <tr class="table-row">
               <td class="table-cell">{item.cmd}</td>
-              <td class="table-cell">{item.enabled ? true : false} </td>
+              <td class="table-cell">{item.enabled ? '✅' : '❌'} </td>
               <td class="table-cell">{item.act}</td>
               <td class="table-cell">{item.prompt}</td>
               <td class="table-cell">
-                <button on:click={() => editPromptClick(item)}>📝</button>
-                <button on:click={() => deletePromptClick(item)}>⛔</button>
+                <div class="buttons">
+                  <button class="button is-link" on:click={() => editPromptClick(item)}>📝</button>
+                  <button class="button is-link" on:click={() => deletePromptClick(item)}>⛔</button>
+                </div>
               </td>
             </tr>
           {/each}
@@ -245,15 +266,16 @@
       <p class="modal-card-title">Prompt</p>
     </header>
     <section class="modal-card-body" />
+
+    <footer class="modal-card-foot">
+      <button
+        class="button is-sucess"
+        aria-label="save"
+        on:click={savePromptEditModal}>Save</button
+      >
+      <button class="button" aria-label="cancel" on:click={closePromptEditModal}
+        >Cancel</button
+      >
+    </footer>
   </div>
-  <footer class="modal-card-foot">
-    <button
-      class="button is-sucess"
-      aria-label="save"
-      on:click={savePromptEditModal}>Save</button
-    >
-    <button class="button" aria-label="cancel" on:click={closePromptEditModal}
-      >Cancel</button
-    >
-  </footer>
 </div>

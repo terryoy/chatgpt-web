@@ -5,7 +5,8 @@
     apiHostStorage,
     chatsStorage,
     addMessage,
-    clearMessages
+    clearMessages,
+    promptStorage
   } from './Storage.svelte'
 
   import {
@@ -122,6 +123,7 @@
   ]
 
   $: chat = $chatsStorage.find((chat) => chat.id === chatId) as Chat
+  $: prompts = $promptStorage
 
   onMount(async () => {
     // Pre-select the last used model
@@ -237,6 +239,10 @@
     return response
   }
 
+  const resizeInput = () => {
+    input.style.height = "auto";
+    input.style.height = input.scrollHeight + "px";
+  }
 
   const submitForm = async (
     recorded: boolean = false,
@@ -374,14 +380,26 @@
   };
 
   // -- Function block: Insert Prompt
+  let promptAssist = {
+    prompts: [],
+    searchKey: ''
+  }
+  $: promptList = promptAssist.prompts;
+  $: promptSearchKey = promptAssist.searchKey
   const testPromptSearch = () => {
     const searchKey = input.value;
     if (/\/[0-9a-zA-Z\-]*$/.test(searchKey)) {
-      console.log("prompt list activate");
       showPromptList = true;
+      const promptSearchKey = searchKey.substring(1);
+      console.log("prompt search:", promptSearchKey);
+      promptAssist.searchKey = promptSearchKey
+      promptAssist.prompts = searchKey ? 
+        prompts.filter((p) => 
+          p.cmd.indexOf(promptSearchKey) == 0 || p.act.indexOf(promptSearchKey) >= 0) 
+        : prompts;
     } else {
-      console.log("prompt list deactivate");
       showPromptList = false;
+      promptAssist = prompts
     }
   };
 
@@ -402,15 +420,14 @@
     }
   };
 
-  const setPrompt = (e) => {
-    const prompt = e.target.innerText;
-    console.log("prompt click:", e, prompt);
-    if (prompt) {
-      // Set the prompt
-      input.value = prompt;
-      // Submit the form
-      // submitForm();
-    }
+  const setPrompt = (prompt) => {
+    // Set the prompt
+    input.value = prompt;
+    resizeInput()
+    showPromptList = false
+
+    // Submit the form
+    // submitForm();
   };
 </script>
 
@@ -460,22 +477,26 @@
         if (e.key === "Enter" && isMetaOrCtrl) {
           submitForm();
           e.preventDefault();
+        } else {
+          navigatePromptSearch(e)
         }
       }}
       on:input={(e) => {
         // Resize the textarea to fit the content - auto is important to reset the height after deleting content
-        input.style.height = "auto";
-        input.style.height = input.scrollHeight + "px";
-
+        resizeInput()
         testPromptSearch();
       }}
       bind:this={input}
     />
-    {#if showPromptList}
+    {#if showPromptList && promptList}
       <div class="notification code-hints">
-        <div class="hint-item" on:click={setPrompt} on:keydown={(e) => e.key == 'Enter' && setPrompt(e)}>Code Guru</div>
-        <div class="hint-item" on:click={setPrompt} on:keydown={(e) => e.key == 'Enter' && setPrompt(e)}>Architect</div>
-        <div class="hint-item" on:click={setPrompt} on:keydown={(e) => e.key == 'Enter' && setPrompt(e)}>Writer</div>
+        {#each promptList as prompt}
+          <div class="hint-item" 
+            on:click={() => setPrompt(prompt.prompt)} 
+            on:keydown={(e) => e.key == 'Enter' && setPrompt(prompt.prompt)}>
+            {prompt.act}
+          </div>
+        {/each}
       </div>
     {/if}
   </p>
