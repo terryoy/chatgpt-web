@@ -142,8 +142,7 @@
 </script>
 
 <article class="message">
-  <div class="message-header"><p>List of Prompts</p></div>
-  <div class="message-body" />
+  <div class="message-body"><h1>List of Prompts</h1></div>
 </article>
 <section class="content">
   <!-- 搜索框 -->
