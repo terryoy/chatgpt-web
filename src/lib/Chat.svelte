@@ -390,12 +390,12 @@
     const searchKey = input.value;
     if (/\/[0-9a-zA-Z\-]*$/.test(searchKey)) {
       showPromptList = true;
-      const promptSearchKey = searchKey.substring(1);
+      const promptSearchKey = searchKey.substring(1).toLocaleLowerCase();
       console.log("prompt search:", promptSearchKey);
       promptAssist.searchKey = promptSearchKey
       promptAssist.prompts = searchKey ? 
         prompts.filter((p) => 
-          p.cmd.indexOf(promptSearchKey) == 0 || p.act.indexOf(promptSearchKey) >= 0) 
+          p.cmd.toLocaleLowerCase().indexOf(promptSearchKey) == 0 || p.act.toLocaleLowerCase().indexOf(promptSearchKey) >= 0) 
         : prompts;
     } else {
       showPromptList = false;

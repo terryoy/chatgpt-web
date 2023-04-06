@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script lang="ts">
   import { get } from "svelte/store";
   import awesomePrompts from '../awesome-chatgpt-prompts/prompts.csv'
   import {
@@ -11,15 +11,20 @@
 
   // Function: Table Pagination
   // 首先定义需要渲染的数据
-  let searchText = "";
+  let currentPageData:Prompt[] = []
+  let tableData: Prompt[] = []
+
   let prompts = get(promptStorage);
-  let tableData: Prompt[] = prompts;
-  updateFilterAndPagination();
 
   const PAGE_SIZE = 10;
   let currentPage = 1;
   let startIndex = 0;
   let endIndex = PAGE_SIZE - 1;
+
+  $: tableData = prompts;
+  $: currentPageData = tableData.slice(startIndex, endIndex+1)
+
+  updateFilterAndPagination();
 
   // 处理分页页码变化的逻辑
   function handlePageChange(page) {
@@ -31,13 +36,17 @@
   // 搜索过滤表格数据
   function handleSearch(event) {
     const searchText = event.target.value.toLowerCase();
+    console.log('search:', searchText)
+    updateFilterAndPagination(searchText)
   }
 
-  function updateFilterAndPagination() {
+  function updateFilterAndPagination(searchText="") {
     tableData = prompts.filter((item) => {
       const name = item.act.toLowerCase();
       return name.includes(searchText);
     });
+    currentPageData = tableData.slice(startIndex, endIndex+1)
+    console.log('tableData:', tableData)
   }
 
   // 处理单元格编辑
@@ -201,7 +210,7 @@
       </thead>
       <tbody>
         {#if tableData.length > 0}
-          {#each tableData.slice(startIndex, endIndex + 1) as item}
+          {#each currentPageData as item}
             <tr class="table-row">
               <td class="table-cell">{item.cmd}</td>
               <td class="table-cell">{item.enabled ? '✅' : '❌'} </td>
@@ -209,8 +218,8 @@
               <td class="table-cell">{item.prompt}</td>
               <td class="table-cell">
                 <div class="buttons">
-                  <button class="button is-link" on:click={() => editPromptClick(item)}>📝</button>
-                  <button class="button is-link" on:click={() => deletePromptClick(item)}>⛔</button>
+                  <a on:click={() => editPromptClick(item)}>📝</a> &nbsp;&nbsp;
+                  <a on:click={() => deletePromptClick(item)}>⛔</a>
                 </div>
               </td>
             </tr>
@@ -225,33 +234,36 @@
   </div>
 
   <!-- 分页 -->
-  <nav class="pagination">
+  <nav class="pagination" role="navigation" aria-label="pagination">
+    <a class="pagination-next">Next page</a>
     {#if tableData.length > PAGE_SIZE}
       {#if currentPage > 1}
-        <button
+        <a
           on:click={() => handlePageChange(currentPage - 1)}
-          class="pagination-prev-next"
+          class="pagination-previous"
         >
-          Prev
-        </button>
-      {/if}
-      {#each Array.from({ length: Math.ceil(tableData.length / PAGE_SIZE) }, (_, i) => i + 1) as page}
-        {#if page === currentPage}
-          <button class="pagination-current">{page}</button>
-        {:else if page >= currentPage - 3 && page <= currentPage + 3}
-          <button
-            on:click={() => handlePageChange(page)}
-            class="pagination-other">{page}</button
-          >
-        {/if}
-      {/each}
+          Previous
+        </a>
       {#if currentPage < Math.ceil(tableData.length / PAGE_SIZE)}
-        <button
+        <a
           on:click={() => handlePageChange(currentPage + 1)}
-          class="pagination-prev-next"
+          class="pagination-next"
         >
           Next
-        </button>
+      </a>
+      {/if}
+      <ul class="pagination-list">
+        {#each Array.from({ length: Math.ceil(tableData.length / PAGE_SIZE) }, (_, i) => i + 1) as page}
+          {#if page === currentPage}
+            <button class="pagination-current">{page}</button>
+          {:else if page >= currentPage - 3 && page <= currentPage + 3}
+            <li>
+              <a class="pagination-link" aria-label="Goto page {page}" 
+              on:click={() => handlePageChange(page)}>{page}</a>
+            </li>
+          {/if}
+        {/each}
+      </ul>
       {/if}
     {/if}
   </nav>
