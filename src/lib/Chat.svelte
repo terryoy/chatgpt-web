@@ -16,7 +16,8 @@
     type Settings,
     type ResponseModels,
     type SettingsSelect,type Chat,
-    supportedModels
+    supportedModels,
+    type Prompt
   } from "./Types.svelte";
   import Prompts from './Prompts.svelte'
   import Messages from './Messages.svelte'
@@ -41,7 +42,7 @@
   let recognition: any = null;
   let recording = false;
   let showPromptList = false;
-  let promptList = true;
+  let promptList:Prompt[] = [];
 
   const modelSetting: Settings & SettingsSelect = {
     key: 'model',
@@ -381,7 +382,7 @@
 
   // -- Function block: Insert Prompt
   let promptAssist = {
-    prompts: [],
+    prompts: [] as Prompt[],
     searchKey: ''
   }
   $: promptList = promptAssist.prompts;
@@ -399,7 +400,7 @@
         : prompts;
     } else {
       showPromptList = false;
-      promptAssist = prompts
+      promptAssist.prompts = prompts
     }
   };
 
@@ -492,6 +493,7 @@
       <div class="notification code-hints">
         {#each promptList as prompt}
           <div class="hint-item" 
+            title={prompt.prompt}
             on:click={() => setPrompt(prompt.prompt)} 
             on:keydown={(e) => e.key == 'Enter' && setPrompt(prompt.prompt)}>
             {prompt.act}
