@@ -89,4 +89,8 @@
     promptStorage.update(prompts => prompts.filter(prompt => prompt.cmd === promptKey))
   }
 
+  export const clearPrompt = () => {
+    promptStorage.set([])
+  }
+
 </script>

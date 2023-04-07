@@ -3,6 +3,7 @@
   import awesomePrompts from '../awesome-chatgpt-prompts/prompts.csv'
   import {
     addNewPrompts,
+    clearPrompt,
     deletePrompt,
     promptStorage,
     updatePrompt,
@@ -14,14 +15,15 @@
   let currentPageData:Prompt[] = []
   let tableData: Prompt[] = []
 
-  let prompts = get(promptStorage);
-
   const PAGE_SIZE = 10;
   let currentPage = 1;
+  let totalPageCount = 1;
   let startIndex = 0;
   let endIndex = PAGE_SIZE - 1;
 
-  $: tableData = prompts;
+  $: totalPageCount
+  $: currentPage
+  $: tableData = get(promptStorage);
   $: currentPageData = tableData.slice(startIndex, endIndex+1)
 
   updateFilterAndPagination();
@@ -29,8 +31,7 @@
   // 处理分页页码变化的逻辑
   function handlePageChange(page) {
     currentPage = page;
-    startIndex = (currentPage - 1) * PAGE_SIZE;
-    endIndex = startIndex + PAGE_SIZE - 1;
+    updateFilterAndPagination()
   }
 
   // 搜索过滤表格数据
@@ -41,12 +42,23 @@
   }
 
   function updateFilterAndPagination(searchText="") {
-    tableData = prompts.filter((item) => {
+    tableData = get(promptStorage).filter((item) => {
       const name = item.act.toLowerCase();
       return name.includes(searchText);
     });
+    // 重新算页面数
+    totalPageCount = Math.ceil(tableData.length / PAGE_SIZE)
+    if (totalPageCount < currentPage) {
+      currentPage = totalPageCount
+    } else if (currentPage === 0) {
+      currentPage = 1
+    }
+    // 重新算当前页面内容
+    startIndex = (currentPage - 1) * PAGE_SIZE;
+    endIndex = startIndex + PAGE_SIZE - 1;
     currentPageData = tableData.slice(startIndex, endIndex+1)
-    console.log('tableData:', tableData)
+    console.log('tableData:', tableData.length, `page: ${currentPage} / ${totalPageCount}`, "pageSize:", PAGE_SIZE);
+
   }
 
   // 处理单元格编辑
@@ -121,13 +133,18 @@
   const loadBasePrompts = () => {
     const basePrompts:Prompt[] = awesomePrompts.map((p) => {
       return {
-        cmd: p.act,
+        cmd: p.act.replace(/[^a-z]/gi, ''),
         act: p.act,
         prompt: p.prompt,
         enabled: true
       }
     })
     addNewPrompts(basePrompts)
+    updateFilterAndPagination()
+  }
+
+  const clearExistingPrompts = () => {
+    clearPrompt()
     updateFilterAndPagination()
   }
 
@@ -149,6 +166,15 @@
     fileInput.click();
   };
 </script>
+
+
+<style>
+  .pagination-list {
+    margin: 0
+  }
+</style>
+
+
 
 <article class="message">
   <div class="message-body"><h1>List of Prompts</h1></div>
@@ -185,7 +211,9 @@
           >Add</button
         >
         <button class="button" on:click|preventDefault={loadBasePrompts}
-          >Load</button
+          >Load</button>
+        <button class="button" on:click|preventDefault={clearExistingPrompts}
+          >Clear</button
         >
         <!-- <button
           class="button is-primary"
@@ -212,14 +240,14 @@
         {#if tableData.length > 0}
           {#each currentPageData as item}
             <tr class="table-row">
-              <td class="table-cell">{item.cmd}</td>
+              <td class="table-cell"><span class="tag">/{item.cmd}</span></td>
               <td class="table-cell">{item.enabled ? '✅' : '❌'} </td>
               <td class="table-cell">{item.act}</td>
               <td class="table-cell">{item.prompt}</td>
               <td class="table-cell">
                 <div class="buttons">
-                  <a on:click={() => editPromptClick(item)}>📝</a> &nbsp;&nbsp;
-                  <a on:click={() => deletePromptClick(item)}>⛔</a>
+                  <a href={'#'} on:click|preventDefault={() => editPromptClick(item)}>📝</a> &nbsp;&nbsp;
+                  <a href={'#'} on:click|preventDefault={() => deletePromptClick(item)}>⛔</a>
                 </div>
               </td>
             </tr>
@@ -234,44 +262,45 @@
   </div>
 
   <!-- 分页 -->
-  <nav class="pagination" role="navigation" aria-label="pagination">
-    <a class="pagination-next">Next page</a>
-    {#if tableData.length > PAGE_SIZE}
+  <nav class="pagination" aria-label="pagination">
+    {#if totalPageCount > 1}
       {#if currentPage > 1}
-        <a
-          on:click={() => handlePageChange(currentPage - 1)}
+        <a href={'#'}
+          on:click|preventDefault={() => handlePageChange(currentPage - 1)}
           class="pagination-previous"
         >
           Previous
         </a>
-      {#if currentPage < Math.ceil(tableData.length / PAGE_SIZE)}
-        <a
-          on:click={() => handlePageChange(currentPage + 1)}
+      {/if}
+      {#if currentPage < totalPageCount}
+        <a href={'#'}
+          on:click|preventDefault={() => handlePageChange(currentPage + 1)}
           class="pagination-next"
         >
           Next
       </a>
       {/if}
       <ul class="pagination-list">
-        {#each Array.from({ length: Math.ceil(tableData.length / PAGE_SIZE) }, (_, i) => i + 1) as page}
+        {#each Array.from({ length: totalPageCount }, (_, i) => i + 1) as page}
           {#if page === currentPage}
-            <button class="pagination-current">{page}</button>
-          {:else if page >= currentPage - 3 && page <= currentPage + 3}
             <li>
-              <a class="pagination-link" aria-label="Goto page {page}" 
-              on:click={() => handlePageChange(page)}>{page}</a>
+              <a href={'#'} class="pagination-link is-current" aria-label="Page {page}" on:click|preventDefault={() => {}}>{page}</a>
+            </li>
+          {:else if page >= currentPage - 2 && page <= currentPage + 2}
+            <li>
+              <a href={'#'} class="pagination-link" aria-label="Goto page {page}" 
+              on:click|preventDefault={() => handlePageChange(page)}>{page}</a>
             </li>
           {/if}
         {/each}
       </ul>
-      {/if}
-    {/if}
+    {/if}  
   </nav>
 </section>
 
 <!-- add or edit dialog -->
 <div class="modal" bind:this={promptEditModal}>
-  <div class="modal-background" on:click={closePromptEditModal} />
+  <div class="modal-background" on:click|preventDefault={closePromptEditModal} />
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Prompt</p>
@@ -282,9 +311,9 @@
       <button
         class="button is-sucess"
         aria-label="save"
-        on:click={savePromptEditModal}>Save</button
+        on:click|preventDefault={savePromptEditModal}>Save</button
       >
-      <button class="button" aria-label="cancel" on:click={closePromptEditModal}
+      <button class="button" aria-label="cancel" on:click|preventDefault={closePromptEditModal}
         >Cancel</button
       >
     </footer>
