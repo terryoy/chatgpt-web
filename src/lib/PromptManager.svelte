@@ -73,8 +73,10 @@
   let promptEditModal: HTMLElement;
   let editForm = {
     isNew: true,
-    prompt: null,
+    prompt: {} as Prompt,
   };
+
+  $: editForm
 
   const showPromptEditModal = () => {
     promptEditModal.classList.add("is-active");
@@ -299,23 +301,53 @@
 </section>
 
 <!-- add or edit dialog -->
-<div class="modal" bind:this={promptEditModal}>
+<form class="modal" bind:this={promptEditModal} on:submit={savePromptEditModal}>
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="modal-background" on:click|preventDefault={closePromptEditModal} />
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">Prompt</p>
+      {#if editForm.isNew }
+      <p class="modal-card-title">Add a New Prompt</p>  
+      {:else}
+      <p class="modal-card-title">Edit Prompt - {editForm.prompt.act}</p>  
+      {/if}
     </header>
-    <section class="modal-card-body" />
+    <section class="modal-card-body">
+      <div class="field">
+        <label class="label" for="settings-prompt-cmd">Cmd:</label>
+        <div class="control">
+          <input class="input" type="text" id="settings-prompt-cmd" value={editForm.prompt.cmd} />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="settings-prompt-act">Act:</label>
+        <div class="control">
+          <input class="input" type="text" id="settings-prompt-act" value={editForm.prompt.act} />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="settings-prompt-prompt">Prompt</label>
+        <div class="control">
+          <textarea class="textarea" placeholder="Textarea">{editForm.prompt.prompt}</textarea>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="settings-prompt-enabled">Enabled:</label>
+        <div class="control">
+          <input class="input" type="text" id="settings-prompt-enabled" value={editForm.prompt.enabled} />
+        </div>
+      </div>
+
+
+    </section>
 
     <footer class="modal-card-foot">
-      <button
-        class="button is-sucess"
-        aria-label="save"
-        on:click|preventDefault={savePromptEditModal}>Save</button
-      >
-      <button class="button" aria-label="cancel" on:click|preventDefault={closePromptEditModal}
-        >Cancel</button
-      >
+      <input type="submit" class="button is-info" value="Save"/>
+      <button class="button" on:click|preventDefault={closePromptEditModal}>Cancel</button>
     </footer>
   </div>
-</div>
+</form>
+<!-- end -->
