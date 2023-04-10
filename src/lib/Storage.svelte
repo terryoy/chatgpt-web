@@ -8,6 +8,7 @@
   export const apiHostStorage = persisted("apiHost", '' as string);
   export const promptStorage = persisted("prompts", [] as Prompt[]);
 
+
   /* Storage::Chats */
   export const addChat = (): number => {
     const chats = get(chatsStorage)
@@ -85,8 +86,9 @@
     }))
   }
 
-  export const deletePrompt = (promptKey:string) => {
-    promptStorage.update(prompts => prompts.filter(prompt => prompt.cmd === promptKey))
+  export const deletePrompt = (prompt:Prompt) => {
+    const updatedPrompts = get(promptStorage).filter(p => p.act !== prompt.act)
+    promptStorage.set(updatedPrompts)
   }
 
   export const clearPrompt = () => {

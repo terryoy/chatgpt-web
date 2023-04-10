@@ -21,6 +21,7 @@
   let startIndex = 0;
   let endIndex = PAGE_SIZE - 1;
 
+  $: promptStorage
   $: totalPageCount
   $: currentPage
   $: tableData = get(promptStorage);
@@ -69,7 +70,6 @@
   }
 
   // Function: Prompt Edit
-
   let promptEditModal: HTMLElement;
   let editForm = {
     isNew: true,
@@ -108,11 +108,26 @@
     showPromptEditModal();
   };
 
-  const deletePromptClick = (prompt) => {
-    deletePrompt(prompt);
-  };
-
   const _validatePromptForm = () => {
+    const originAct = editForm.prompt.act
+
+    // fill values
+    editForm.prompt.cmd = (promptEditModal.querySelector('#settings-prompt-cmd') as HTMLInputElement).value
+    editForm.prompt.act = (promptEditModal.querySelector('#settings-prompt-act') as HTMLInputElement).value
+    editForm.prompt.prompt = (promptEditModal.querySelector('#settings-prompt-prompt') as HTMLTextAreaElement).value
+    editForm.prompt.enabled = (promptEditModal.querySelector('#settings-prompt-enabled') as HTMLInputElement).value === "true"
+
+    const foundDuplicated = get(promptStorage).find((existing) => {
+      return existing.act !== originAct && (existing.cmd === editForm.prompt.cmd || 
+        existing.act === editForm.prompt.act ||
+        existing.prompt === editForm.prompt.prompt)
+    })
+
+    if (foundDuplicated) {
+      console.error("Has found existing record with same content.")
+      return false;
+    }
+
     return true;
   };
 
@@ -128,8 +143,37 @@
       updatePrompt(editForm.prompt);
     }
 
+    updateFilterAndPagination()
+    closePromptEditModal()
     console.log("save successfully");
   };
+
+  // Function: Prompt Delete
+  let promptDeleteModal:HTMLDivElement;
+
+  const showPromptDeleteConfirm = (prompt) => {
+    editForm = {
+      isNew: false,
+      prompt
+    }
+    showPromptDeleteModal()
+  }
+
+  const showPromptDeleteModal = () => {
+    promptDeleteModal.classList.add("is-active");
+  }
+
+  const closePromptDeleteModal = () => {
+    promptDeleteModal.classList.remove("is-active");
+  }
+
+  const deletePromptClick = () => {
+    console.log('delete prompt:', editForm.prompt)
+    deletePrompt(editForm.prompt);
+    updateFilterAndPagination()
+    closePromptDeleteModal()
+  };
+
 
   // import base prompts 
   const loadBasePrompts = () => {
@@ -249,7 +293,7 @@
               <td class="table-cell">
                 <div class="buttons">
                   <a href={'#'} on:click|preventDefault={() => editPromptClick(item)}>📝</a> &nbsp;&nbsp;
-                  <a href={'#'} on:click|preventDefault={() => deletePromptClick(item)}>⛔</a>
+                  <a href={'#'} on:click|preventDefault={() => showPromptDeleteConfirm(item)}>⛔</a>
                 </div>
               </td>
             </tr>
@@ -268,18 +312,18 @@
     {#if totalPageCount > 1}
       {#if currentPage > 1}
         <a href={'#'}
-          on:click|preventDefault={() => handlePageChange(currentPage - 1)}
+          on:click|preventDefault={() => handlePageChange(1)}
           class="pagination-previous"
         >
-          Previous
+          First
         </a>
       {/if}
       {#if currentPage < totalPageCount}
         <a href={'#'}
-          on:click|preventDefault={() => handlePageChange(currentPage + 1)}
+          on:click|preventDefault={() => handlePageChange(totalPageCount)}
           class="pagination-next"
         >
-          Next
+          Last
       </a>
       {/if}
       <ul class="pagination-list">
@@ -299,6 +343,29 @@
     {/if}  
   </nav>
 </section>
+
+
+<!-- delete prompt confirm -->
+<div class="modal" bind:this={promptDeleteModal}>
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <section class="modal-card-head">
+      <div class="modal-card-title">Are you sure to delete this prompt?</div>
+    </section>
+    <section class="modal-card-body">
+      <ul style="list-style:disc; margin-left: 2em">
+        <li><b>Cmd</b>: /{editForm.prompt.cmd}</li>
+        <li><b>Act</b>: {editForm.prompt.act}</li>
+        <li><b>Prompt</b>: {editForm.prompt.prompt}</li>
+        <li><b>Status</b>: {editForm.prompt.enabled ? "Enabled" : "Disabled"}</li>
+      </ul>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-success" on:click={deletePromptClick}>OK</button>
+      <button class="button" on:click={closePromptDeleteModal}>Cancel</button>
+    </footer>
+  </div>
+</div>
 
 <!-- add or edit dialog -->
 <form class="modal" bind:this={promptEditModal} on:submit={savePromptEditModal}>
@@ -330,7 +397,7 @@
       <div class="field">
         <label class="label" for="settings-prompt-prompt">Prompt</label>
         <div class="control">
-          <textarea class="textarea" placeholder="Textarea">{editForm.prompt.prompt}</textarea>
+          <textarea class="textarea" id="settings-prompt-prompt" placeholder="Textarea">{editForm.prompt.prompt}</textarea>
         </div>
       </div>
 
