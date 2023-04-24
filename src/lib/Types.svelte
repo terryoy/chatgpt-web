@@ -15,6 +15,13 @@
     total_tokens: number;
   };
 
+  export type Prompt = {
+    cmd: string; // id
+    act: string;
+    prompt: string;
+    enabled?: boolean;
+  }
+
   export type Message = {
     role: 'user' | 'assistant' | 'system' | 'error';
     content: string;

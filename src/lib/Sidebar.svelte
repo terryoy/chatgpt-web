@@ -52,6 +52,12 @@
         }}><span class="greyscale mr-2">🗑️</span> Clear chats</a
       >
     </li>
+    <li>
+      <a
+        href={"#/prompt"}
+        class="panel-block"><span class="greyscale mr-2">🤖</span> Prompts</a
+      >
+    </li>
     <!-- {#if activeChatId}
       <li>
         <a

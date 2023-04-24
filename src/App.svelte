@@ -5,6 +5,7 @@
   import Navbar from "./lib/Navbar.svelte";
   import Sidebar from "./lib/Sidebar.svelte";
   import Footer from "./lib/Footer.svelte";
+  import PromptManager from "./lib/PromptManager.svelte";
   import Home from './lib/Home.svelte'
   import Chat from './lib/Chat.svelte'
   import NewChat from './lib/NewChat.svelte'
@@ -40,11 +41,16 @@
       }
     }),
 
+    "/prompt": wrap({
+      component: PromptManager,
+    }),
+
     '*': Home
   }
   if (urlParams.has("host")) {
     apiHostStorage.set(urlParams.get("host")!);
   }
+  let view: string;
 </script>
 
 <Navbar />

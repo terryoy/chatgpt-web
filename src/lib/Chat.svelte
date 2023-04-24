@@ -5,7 +5,8 @@
     apiHostStorage,
     chatsStorage,
     addMessage,
-    clearMessages
+    clearMessages,
+    promptStorage
   } from './Storage.svelte'
 
   import {
@@ -15,7 +16,8 @@
     type Settings,
     type ResponseModels,
     type SettingsSelect,type Chat,
-    supportedModels
+    supportedModels,
+    type Prompt
   } from "./Types.svelte";
   import Prompts from './Prompts.svelte'
   import Messages from './Messages.svelte'
@@ -39,6 +41,8 @@
   let shouldShowChatNameSettings = false;
   let recognition: any = null;
   let recording = false;
+  let showPromptList = false;
+  let promptList:Prompt[] = [];
 
   const modelSetting: Settings & SettingsSelect = {
     key: 'model',
@@ -120,6 +124,7 @@
   ]
 
   $: chat = $chatsStorage.find((chat) => chat.id === chatId) as Chat
+  $: prompts = $promptStorage
 
   onMount(async () => {
     // Pre-select the last used model
@@ -235,11 +240,20 @@
     return response
   }
 
+  const resizeInput = () => {
+    input.style.height = "auto";
+    input.style.height = input.scrollHeight + "px";
+  }
 
-  const submitForm = async (recorded: boolean = false): Promise<void> => {
+  const submitForm = async (
+    recorded: boolean = false,
+    retry: boolean = false
+  ): Promise<void> => {
     // Compose the input message
-    const inputMessage: Message = { role: 'user', content: input.value }
-    addMessage(chatId, inputMessage)
+    if (!retry) {
+      const inputMessage: Message = { role: "user", content: input.value };
+      addMessage(chatId, inputMessage);
+    }
 
     // Clear the input value
     input.value = ''
@@ -251,6 +265,7 @@
     const response = await sendRequest(chat.messages)
 
     if (response.error) {
+      // TODO: Add request retry logic
       addMessage(chatId, {
         role: 'error',
         content: `Error: ${response.error.message}`
@@ -346,7 +361,6 @@
 
   const closeSettings = () => {
     settings.classList.remove("is-active");
-    shouldShowSettings = false;
   };
 
   const clearSettings = () => {
@@ -364,7 +378,58 @@
     } else {
       recognition?.start()
     }
+  };
+
+  // -- Function block: Insert Prompt
+  let promptAssist = {
+    prompts: [] as Prompt[],
+    searchKey: ''
   }
+  $: promptList = promptAssist.prompts;
+  $: promptSearchKey = promptAssist.searchKey
+  const testPromptSearch = () => {
+    const searchKey = input.value;
+    if (/\/[0-9a-zA-Z\-]*$/.test(searchKey)) {
+      showPromptList = true;
+      const promptSearchKey = searchKey.substring(1).toLocaleLowerCase();
+      console.log("prompt search:", promptSearchKey);
+      promptAssist.searchKey = promptSearchKey
+      promptAssist.prompts = searchKey ? 
+        prompts.filter((p) => 
+          p.cmd.toLocaleLowerCase().indexOf(promptSearchKey) == 0 || p.act.toLocaleLowerCase().indexOf(promptSearchKey) >= 0) 
+        : prompts;
+    } else {
+      showPromptList = false;
+      promptAssist.prompts = prompts
+    }
+  };
+
+  const navigatePromptSearch = (e) => {
+    if (!showPromptList) {
+      return;
+    }
+
+    switch (e.key) {
+      case "Up": {
+        console.log("up");
+        break;
+      }
+      case "Down": {
+        console.log("down");
+        break;
+      }
+    }
+  };
+
+  const setPrompt = (prompt) => {
+    // Set the prompt
+    input.value = prompt;
+    resizeInput()
+    showPromptList = false
+
+    // Submit the form
+    // submitForm();
+  };
 </script>
 
 <nav class="level chat-header">
@@ -374,7 +439,7 @@
         {chat.name || `Chat ${chat.id}`}
         <a href={'#'} class="greyscale ml-2 is-hidden has-text-weight-bold editbutton" title="Rename chat" on:click|preventDefault={showChatNameSettings}>✏️</a>
         <a href={'#'} class="greyscale ml-2 is-hidden has-text-weight-bold editbutton" title="Suggest a chat name" on:click|preventDefault={suggestName}>💡</a>
-        <a href={"#"} class="greyscale ml-2 is-hidden has-text-weight-bold editbutton" title="Suggest a chat name" on:click|preventDefault={() => { exportAsMarkdown(chat.id); }} > 📥 </a>
+        <a href={"#"} class="greyscale ml-2 is-hidden has-text-weight-bold editbutton" title="Export this chat" on:click|preventDefault={() => { exportAsMarkdown(chat.id); }} > 📥 </a>
         <a href={'#'} class="greyscale ml-2 is-hidden has-text-weight-bold editbutton" title="Delete this chat" on:click|preventDefault={deleteChat}>🗑️</a>
       </p>
     </div>
@@ -413,15 +478,29 @@
         if (e.key === "Enter" && isMetaOrCtrl) {
           submitForm();
           e.preventDefault();
+        } else {
+          navigatePromptSearch(e)
         }
       }}
       on:input={(e) => {
         // Resize the textarea to fit the content - auto is important to reset the height after deleting content
-        input.style.height = 'auto'
-        input.style.height = input.scrollHeight + 'px'
+        resizeInput()
+        testPromptSearch();
       }}
       bind:this={input}
     />
+    {#if showPromptList && promptList}
+      <div class="notification code-hints">
+        {#each promptList as prompt}
+          <div class="hint-item" 
+            title={prompt.prompt}
+            on:click={() => setPrompt(prompt.prompt)} 
+            on:keydown={(e) => e.key == 'Enter' && setPrompt(prompt.prompt)}>
+            {prompt.act}
+          </div>
+        {/each}
+      </div>
+    {/if}
   </p>
   <p class="control" class:is-hidden={!recognition}>
     <button

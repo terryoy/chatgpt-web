@@ -67,6 +67,28 @@ a.is-disabled {
   resize: vertical;
 }
 
+/* Style the code assist */
+.code-hints {
+  position: absolute !important;
+  width: 300px;
+  background-color: white;
+  border: 1px solid gray;
+  z-index: 10;
+  padding: 1em 1.25em !important;
+  max-height: 26em;
+  overflow: auto;
+}
+
+.hint-item {
+  padding: 5px;
+  cursor: pointer;
+}
+
+.hint-item:hover {
+  background-color: #f5f5f5;
+}
+
+
 $footer-padding: 3rem 1.5rem;
 $fullhd: 2000px;
 $modal-content-width: 1000px;
@@ -127,4 +149,11 @@ $modal-background-background-color-dark: rgba($dark, 0.86) !default; // remove t
   .dropdown-menu {
     width: 100%;
   }
+}
+
+
+/* Dropdown for prompts select */
+.prompts-dropdown {
+  max-height: 26em;
+  overflow: auto;
 }

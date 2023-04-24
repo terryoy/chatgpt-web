@@ -1,5 +1,7 @@
 <script lang="ts">
-  import prompts from '../awesome-chatgpt-prompts/prompts.csv'
+  import { promptStorage } from './Storage.svelte';
+
+  $: prompts = $promptStorage
 
   const inputPrompt = (prompt: string) => {
     input.value = prompt
@@ -25,7 +27,7 @@
         </button>
       </div>
       <div class="dropdown-menu" id="dropdown-menu" role="menu">
-        <div class="dropdown-content">
+        <div class="dropdown-content prompts-dropdown">
           {#each prompts as prompt}
             <a class="dropdown-item" href={'#'} on:click|preventDefault={() => inputPrompt(prompt.prompt)}>
               {prompt.act}
