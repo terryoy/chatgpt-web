@@ -54,10 +54,8 @@
   }
 
   export const deleteChat = (chatId: number) => {
-    const chats = get(chatsStorage);
-    const chatIndex = chats.findIndex((chat) => chat.id === chatId);
-    chats.splice(chatIndex, 1);
-    chatsStorage.set(chats);
+    const chats = get(chatsStorage)
+    chatsStorage.set(chats.filter((chat) => chat.id !== chatId))
   };
 
 

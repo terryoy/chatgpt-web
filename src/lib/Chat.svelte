@@ -249,6 +249,14 @@
     recorded: boolean = false,
     retry: boolean = false
   ): Promise<void> => {
+    // Compose the system prompt message if there are no messages yet - disabled for now
+    /*
+    if (chat.messages.length === 0) {
+      const systemPrompt: Message = { role: 'system', content: 'You are a helpful assistant.' }
+      addMessage(chatId, systemPrompt)
+    }
+    */
+  
     // Compose the input message
     if (!retry) {
       const inputMessage: Message = { role: "user", content: input.value };
@@ -322,7 +330,8 @@
 
   const showChatNameSettings = () => {
     chatNameSettings.classList.add('is-active');
-    (chatNameSettings.querySelector('#settings-chat-name') as HTMLInputElement).focus()
+    (chatNameSettings.querySelector('#settings-chat-name') as HTMLInputElement).focus();
+    (chatNameSettings.querySelector('#settings-chat-name') as HTMLInputElement).select()
   }
 
   const saveChatNameSettings = () => {
@@ -537,6 +546,7 @@
       <p class="modal-card-title">Settings</p>
     </header>
     <section class="modal-card-body">
+      <p class="notification is-warning">Below are the settings that OpenAI allows to be changed for the API calls. See the <a href="https://platform.openai.com/docs/api-reference/chat/create">OpenAI API docs</a> for more details.</p>
       {#each settingsMap as setting}
         <div class="field is-horizontal">
           <div class="field-label is-normal">
